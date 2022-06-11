@@ -1,17 +1,17 @@
-#include <string.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifndef SRC_CAT_S21_CAT_H_
 #define SRC_CAT_S21_CAT_H_
 
 typedef struct {
-  int b;
-  int e;
-  int n;
-  int s;
-  int t;
-  int v;
+    int b;
+    int e;
+    int n;
+    int s;
+    int t;
+    int v;
 } letters;
 
 void initialization_structure(letters *token);

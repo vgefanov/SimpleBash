@@ -1,259 +1,380 @@
 #include "s21_grep.h"
 
-int main(int argc, char *argv[]) {
-  char **find_str;
-  find_str = (char **)malloc(1024 * sizeof(char *));
-  for (int i = 0; i < 1024; i++)
-    *(find_str + i) = (char *)malloc(1024 * sizeof(char));
-  letters flags;
-  initialization_structure(&flags);
-  int find_number = 0, count_flags = 0, error = 0, count_file;
-  if (argc > 1) {
-    count_file = pars_full(&flags, argc, argv, find_str, &find_number,
-                           &count_flags, &error);
-  } else {
-    error = 1;
-  }
-  if (!error) {
+int main(int argc, char **argv) {
+    int len = argc;
+    template template[len];
+    init_templates(template, argc);
+    int templates_var = 0;
+    int flags[10] = {0};
+    get_grep_flags(argc, argv, flags, template, &templates_var);
+    scan_files(argc, argv, template, templates_var, flags);
+    return 0;
+}
+
+void init_templates(template *template, int size) {
+    for (int i = 0; i < size; i++) {
+        template[i].name = NULL;
+        template[i].file_name = NULL;
+        template[i].is_default = 0;
+        template[i].is_file = 0;
+    }
+}
+
+void get_grep_flags(int argc, char **argv, int *flags, template *template, int *templates_var) {
+    int e = 0, f = 0;
     for (int i = 1; i < argc; i++) {
-      if (argv[i][0] != '-')
-        operation_file(&flags, argv[i], find_str, find_number, count_file);
-    }
-  }
-  for (int i = 0; i < 1024; i++) free(*(find_str + i));
-  free(find_str);
-  return 0;
-}
-
-void initialization_structure(letters *token) {
-  token->e = 0;
-  token->i = 0;
-  token->v = 0;
-  token->c = 0;
-  token->l = 0;
-  token->n = 0;
-  token->h = 0;
-  token->s = 0;
-  token->f = 0;
-  token->o = 0;
-}
-
-int pars_full(letters *flags, int argc, char **argv, char **find_str,
-              int *find_number, int *count_flags, int *error) {
-  int count_file = 0, i = 1;
-  while (i < argc) {
-    if (argv[i][0] == '-') {
-      if (pars_letters(flags, argc, argv, argv[i], &i, find_str[*find_number],
-                       find_number, count_flags)) {
-        *error = 1;
-        break;
-      }
-    }
-    i++;
-  }
-  if (!*count_flags) {
-    snprintf(find_str[*find_number], strlen(argv[1]) + 1, "%s", argv[1]);
-    argv[1][0] = '-';
-    *find_number += 1;
-  } else if (flags->e == 0) {
-    i = 1;
-    while (i < argc) {
-      if (argv[i][0] != '-') {
-        snprintf(find_str[*find_number], strlen(argv[i]) + 1, "%s", argv[i]);
-        argv[i][0] = '-';
-        *find_number += 1;
-        break;
-      }
-      i++;
-    }
-    if (*find_number == 0) *error = 1;
-  }
-  for (int j = 1; j < argc; j++) {
-    if (argv[j][0] != '-') count_file += 1;
-  }
-  return count_file;
-}
-
-int pars_letters(letters *flags, int argc, char **argv, char *str,
-                 int *argv_number, char *find_str, int *find_number,
-                 int *count_flags) {
-  int error = 0, i = 1;
-  while (str[i] != '\0') {
-    if (calling_function(flags, str[i])) {
-      error = 1;
-      break;
-    } else {
-      *count_flags += 1;
-      if (str[i] == 'e') {
-        if (str[i + 1] != '\0') {
-          memmove(find_str, str + i + 1, strlen(str) - i);
-        } else if (*argv_number + 1 < argc) {
-          snprintf(find_str, strlen(argv[*argv_number + 1]) + 1, "%s",
-                   argv[*argv_number + 1]);
-          argv[*argv_number + 1][0] = '-';
-          *argv_number += 1;
-        } else {
-          printf("Ошибка ввода. Введите './s21_grep -q' для помощи\n");
-          error = 1;
-          break;
+        if (strspn(argv[i], "-")) {
+            get_flags_from_argv(argv[i], flags);
+            if (strchr(argv[i], 'f')) {
+                f++;
+                template[*templates_var].file_name = get_template_file_name(argc, argv, i);
+                template[*templates_var].is_default = 0;
+                template[*templates_var].is_file = 1;
+                (*templates_var)++;
+            }
+            if (strchr(argv[i], 'e')) {
+                e++;
+                template[*templates_var].name = get_e_template(argc, argv, i);
+                template[*templates_var].is_default = 0;
+                template[*templates_var].is_file = 0;
+                (*templates_var)++;
+            }
         }
-        *find_number += 1;
-        break;
-      }
     }
-    i++;
-  }
-  return error;
-}
-
-int calling_function(letters *flags, char c) {
-  int error = 0;
-  switch (c) {
-    case 'e':
-      flags->e = 1;
-      break;
-    case 'i':
-      flags->i = 1;
-      break;
-    case 'v':
-      flags->v = 1;
-      break;
-    case 'c':
-      flags->c = 1;
-      break;
-    case 'l':
-      flags->l = 1;
-      break;
-    case 'n':
-      flags->n = 1;
-      break;
-    case 'h':
-      flags->h = 1;
-      break;
-    case 's':
-      flags->s = 1;
-      break;
-    case 'f':
-      flags->f = 1;
-      break;
-    case 'o':
-      flags->o = 1;
-      break;
-    case 'q':
-      printf(
-          "Формат ввода:\n./s21_grep [-флаг] [шаблон] [название файла]\nСписок "
-          "доступных флагов:\n-е шаблон\n-i игнорирует различия регистра\n-v "
-          "инвертирует смысл поиска соответствий\n-c выводит только количество "
-          "совпадающих строк\n-l выводит только совпадающие файлы\n-n "
-          "предваряет каждую строку вывода номером строки из файла ввода\n-h "
-          "выводит совпадающие строки, не предваряя их именами файлов\n-s "
-          "подавляет сообщения об ошибках о несуществующих или нечитаемых "
-          "файлах\n-f [file] получает регулярные выражения из файла\n-o "
-          "печатает только совпадающие (непустые) части совпавшей строки\n");
-      break;
-    default:
-      printf("Ошибка ввода. Введите './s21_grep -q' для помощи\n");
-      error = 1;
-  }
-  return error;
-}
-
-void operation_file(letters *flags, char *file, char **find_str,
-                    int find_number, int count_file) {
-  char *line = NULL;
-  size_t len = 0;
-  char *name_f = (char *)malloc(1024 * sizeof(char));
-  FILE *fp;
-  fp = fopen(file, "r");
-  int print = 0;
-  if (fp == NULL) {
-    if (!flags->s)
-      printf("Ошибка ввода. '%s' такого файла не существует\n", file);
-  } else {
-    def_file(flags, count_file, file, name_f);
-    int count_flag_c = 0, count_flag_n = 0, count_flag_l = 0;
-    char last = ' ';
-    while (getline(&line, &len, fp) != EOF) {
-      last = proc_mark(flags, line, find_str, find_number, name_f,
-                       &count_flag_n, &count_flag_c, &count_flag_l, &print);
+    if (e == 0 && f == 0) {
+        template[*templates_var].name = get_default_template(argc, argv);
+        template[*templates_var].is_default = 1;
+        template[*templates_var].is_file = 0;
+        (*templates_var)++;
     }
-    proc_after(flags, name_f, file, last, count_flag_c, count_flag_l, print);
-    fclose(fp);
-  }
-  free(line);
-  free(name_f);
 }
 
-void def_file(letters *flags, int count_file, char *file, char *file_name) {
-  if (count_file > 1 && flags->h == 0) {
-    snprintf(file_name, strlen(file) + 1, "%s", file);
-    file_name[strlen(file)] = ':';
-    file_name[strlen(file) + 1] = '\0';
-  } else {
-    file_name[0] = '\0';
-  }
-}
-
-int proc_mark(letters *flags, char *line, char **find_str, int find_number,
-              char *file_name, int *count_flag_n, int *count_flag_c,
-              int *count_flag_l, int *print) {
-  char last;
-  *print = 0;
-  *count_flag_n += 1;
-  if (control_line(flags, line, find_str, find_number)) {
-    if (flags->l) *count_flag_l += 1;
-    if (flags->c) *count_flag_c += 1;
-    if (!flags->c && !flags->l) {
-      if (flags->n)
-        printf("%s%d:%s", file_name, *count_flag_n, line);
-      else
-        printf("%s%s", file_name, line);
+int get_flags_from_argv(char *arg, int *flags) {
+    int fail = 0;
+    char *flag;
+    if (strlen(arg) == 1 || strlen(arg) != strspn(arg, "-eivclnhsfo")) fail = 1;
+    char *e = strchr(arg, 'e');
+    char *f = strchr(arg, 'f');
+    if (!e) e = arg + strlen(arg);
+    if (!f) f = arg + strlen(arg);
+    if (e < f) {
+        flags[8] = 1;
+        f = e;
     }
-    *print += 1;
-  }
-  last = line[strlen(line) - 1];
-  return last;
+    if (f < e) {
+        flags[0] = 1;
+        e = f;
+    }
+    if ((flag = strchr(arg, 'i')) && (e == NULL || flag < e) && (f == NULL || flag < f)) flags[1] = 1;
+    if ((flag = strchr(arg, 'v')) && (e == NULL || flag < e) && (f == NULL || flag < f)) flags[2] = 1;
+    if ((flag = strchr(arg, 'c')) && (e == NULL || flag < e) && (f == NULL || flag < f)) flags[3] = 1;
+    if ((flag = strchr(arg, 'l')) && (e == NULL || flag < e) && (f == NULL || flag < f)) flags[4] = 1;
+    if ((flag = strchr(arg, 'n')) && (e == NULL || flag < e) && (f == NULL || flag < f)) flags[5] = 1;
+    if ((flag = strchr(arg, 'h')) && (e == NULL || flag < e) && (f == NULL || flag < f)) flags[6] = 1;
+    if ((flag = strchr(arg, 's')) && (e == NULL || flag < e) && (f == NULL || flag < f)) flags[7] = 1;
+    if ((flag = strchr(arg, 'o')) && (e == NULL || flag < e) && (f == NULL || flag < f)) flags[9] = 1;
+    return fail;
 }
 
-int control_line(letters *flags, char *line, char **find_str, int find_number) {
-  int success = 0;
-  regex_t regex;
-  for (int i = 0; i < find_number; i++) {
-    if (flags->i) {
-      regcomp(&regex, find_str[i], REG_ICASE);
+char *get_template_file_name(int argc, char **argv, int i) {
+    char *res = NULL;
+    if (strchr(argv[i], 'f') == argv[i] + strlen(argv[i]) - 1) {
+        if (i + 1 < argc) res = argv[i + 1];
     } else {
-      regcomp(&regex, find_str[i], 0);
+        res = strchr(argv[i], 'f') + 1;
     }
-    if ((regexec(&regex, line, 0, NULL, 0)) == 0) {
-      success = 1;
-      break;
+    return res;
+}
+
+char *get_e_template(int argc, char **argv, int i) {
+    char *res = NULL;
+    if (strchr(argv[i], 'e') == argv[i] + strlen(argv[i]) - 1) {
+        if (i + 1 < argc) res = argv[i + 1];
+    } else {
+        res = strchr(argv[i], 'e') + 1;
     }
-  }
-  if (flags->v) {
-    if (success)
-      success = 0;
+    return res;
+}
+
+char *get_default_template(int argc, char **argv) {
+    char *res = NULL;
+    for (int i = 1; i < argc; i++) {
+        if (!strspn(argv[i], "-")) {
+            res = argv[i];
+            break;
+        }
+    }
+    return res;
+}
+
+void scan_files(int argc, char **argv, template *template, int templates_var, int *flags) {
+    int files_variable = var_files(argc, argv, template, flags);
+    if (files_variable) {
+        file_struct files[files_variable];
+        init_files(files, files_variable);
+        get_files(argc, argv, template, files, flags);
+        files_processing(template, templates_var, files, files_variable, flags);
+    }
+}
+
+int var_files(int argc, char **argv, template *template, int *flags) {
+    int res = 0;
+    int same = 0;
+    for (int i = 1; i < argc; i++)
+        if (is_arg_a_file(i, argv, template, &same, flags)) res++;
+    return res;
+}
+
+int is_arg_a_file(int i, char **argv, template *template, int *same, const int *flags) {
+    return (!strspn(argv[i], "-") &&
+            !((strchr(argv[i], 'f') && strspn(argv[i], "-")) ||
+              (i != 1 && argv[i - 1][strlen(argv[i - 1]) - 1] == 'f' && strspn(argv[i - 1], "-")) ||
+              (strchr(argv[i], 'e') && strspn(argv[i], "-")) ||
+              (i != 1 && argv[i - 1][strlen(argv[i - 1]) - 1] == 'e' && strspn(argv[i - 1], "-")) ||
+              (!(flags[8] || flags[0]) && !strcmp(argv[i], template[0].name) && ((*same)--) >= 0)));
+}
+
+void init_files(file_struct *files, int size) {
+    for (int i = 0; i < size; i++) {
+        files[i].file_name = NULL;
+        files[i].mached = 0;
+        files[i].mached_all = 0;
+        files[i].valid = 0;
+    }
+}
+
+void get_files(int argc, char **argv, template *template, file_struct *files, int *flags) {
+    int same = 0;
+    int k = 0;
+    for (int i = 1; i < argc; i++) {
+        if (is_arg_a_file(i, argv, template, &same, flags)) files[k++].file_name = argv[i];
+    }
+}
+
+void files_processing(template *template, int templates_var, file_struct *files, int files_var, int *flags) {
+    int empty_line = is_empty_line_in_templates(template, templates_var);
+    int maching_lines = 0;
+    for (int i = 0; i < files_var; i++) {
+        FILE *fp = fopen(files[i].file_name, "r");
+        if (fp) {
+            if (empty_line) {
+                if (flags[L] || flags[C] || (flags[O] && !flags[V]) || !(flags[V] && flags[O]))
+                    maching_lines = print_all(fp, flags, files + i, files_var);
+            } else {
+                maching_lines = seek_in_file(fp, template, templates_var, flags, files + i, files_var);
+            }
+            fclose(fp);
+        } else {
+            if (!flags[S]) printf("Ошибка ввода, %s такого файла не существует\n", files[i].file_name);
+            files[i].valid = 0;
+        }
+        if (flags[C]) print_files_c(files + i, files_var, maching_lines, flags);
+        if (flags[L]) print_files_l(files + i, maching_lines);
+    }
+}
+
+int is_empty_line_in_templates(template *template, int templates_var) {
+    int res = 0;
+    for (int i = 0; i < templates_var; i++) {
+        if (template[i].is_file) {
+            char *line = NULL;
+            size_t size = 0;
+            FILE *fp = fopen(template[i].file_name, "r");
+            if (fp) {
+                while (getline(&line, &size, fp) != -1) {
+                    if (line && is_empty_line(line)) res = 1;
+                }
+                fclose(fp);
+                free(line);
+            }
+        } else {
+            if (is_empty_line(template[i].name)) res = 1;
+        }
+    }
+    return res;
+}
+
+int is_empty_line(char *name) { return (strlen(name) == 1 && name[0] == '\n'); }
+
+int print_all(FILE *fp, int *flags, file_struct *files, int files_var) {
+    char *line = NULL;
+    int line_number = 0;
+    size_t size = 0;
+    while (getline(&line, &size, fp) != -1) {
+        if (line) {
+            trim_n(line);
+            line_number++;
+            if (!flags[C] && !flags[L]) {
+                if (strlen(line) == 1 && line[0] == '.') line[0] = '\0';
+                if (!flags[H] && files_var > 1) printf("%s:", files->file_name);
+                if (flags[N]) printf("%d:", line_number);
+                printf("%s\n", line);
+            }
+        }
+    }
+    free(line);
+    return line_number;
+}
+
+void trim_n(char *line) {
+    if (strlen(line) == 1 && line[0] == '\n') line[0] = '.';
+    if (line[strlen(line) - 1] == '\n') line[strlen(line) - 1] = '\0';
+}
+
+int seek_in_file(FILE *fp, template *template, int templates_var, int *flags, file_struct *files,
+                 int files_var) {
+    int matching_lines = 0;
+    int line_number = 0;
+    size_t size = 0;
+    char *line = NULL;
+    while (getline(&line, &size, fp) != -1) {
+        if (line) {
+            int one_time_print = 1;
+            line_number++;
+            trim_n(line);
+            for (int i = 0; i < templates_var; i++) {
+                int file_name_print = 1;
+                seek_choice(line, template + i, files, flags, &matching_lines, files_var, line_number,
+                            &one_time_print, &file_name_print);
+            }
+            if (flags[V] && one_time_print == 1) {
+                print_match(line, flags, files, files_var, line_number, &one_time_print, &matching_lines);
+            }
+        }
+    }
+    free(line);
+    return matching_lines;
+}
+
+void seek_choice(char *line, template *template, file_struct *files, int *flags, int *matching_lines,
+                 int files_var, int line_number, int *one_time_print, int *file_name_print) {
+    if (flags[O] && !flags[C] && !flags[V]) {
+        if (template->is_file) {
+            seek_file_templates(line, template, files, flags, matching_lines, files_var, line_number,
+                                one_time_print, file_name_print);
+        } else {
+            seek_o_template(line, template, files, flags, matching_lines, files_var, line_number,
+                            file_name_print);
+        }
+    } else {
+        if (template->is_file) {
+            seek_file_templates(line, template, files, flags, matching_lines, files_var, line_number,
+                                one_time_print, file_name_print);
+        } else {
+            seek_template(line, *template, files, flags, matching_lines, files_var, line_number,
+                          one_time_print);
+        }
+    }
+}
+
+void seek_file_templates(char *line, template *template, file_struct *files, int *flags, int *matching_lines,
+                         int files_var, int line_number, int *one_time_print, int *file_name_print) {
+    FILE *fp = fopen(template->file_name, "r");
+    if (fp) {
+        char *file_line = NULL;
+        size_t file_line_size = 0;
+        while (getline(&file_line, &file_line_size, fp) != -1) {
+            if (line) {
+                template->name = file_line;
+                if (flags[O] && !flags[C] && !flags[V]) {
+                    seek_o_template(line, template, files, flags, matching_lines, files_var, line_number,
+                                    file_name_print);
+                } else {
+                    seek_template(line, *template, files, flags, matching_lines, files_var, line_number,
+                                  one_time_print);
+                }
+            }
+        }
+        free(file_line);
+        fclose(fp);
+    } else {
+        if (!flags[S]) printf("Ошибка ввода, %s такого файла не существует\n", template->file_name);
+    }
+}
+
+void seek_o_template(char *line, template *template, file_struct *files, int *flags, int *maching_lines,
+                     int files_var, int line_number, int *file_name_print) {
+    regex_t regex;
+    trim_n(template->name);
+    int comp_val = do_regcomp(&regex, flags, template->name);
+    if (!comp_val) {
+        regmatch_t match;
+        size_t offset = 0;
+        size_t len = strlen(line);
+        int eflags = 0;
+        while (regexec(&regex, line + offset, 1, &match, eflags) == 0) {
+            if (*file_name_print) (*maching_lines)++;
+            eflags = REG_NOTBOL;
+            print_o_match(file_name_print, files, offset, match, line, flags, line_number, files_var);
+            offset += match.rm_eo;
+            if (match.rm_so == match.rm_eo) offset += 1;
+            if (offset > len) break;
+        }
+    }
+    regfree(&regex);
+}
+
+int do_regcomp(regex_t *regex, int *flags, char *template) {
+    int comp_val;
+    if (flags[1])
+        comp_val = regcomp(regex, template, REG_ICASE);
     else
-      success = 1;
-  }
-  regfree(&regex);
-  return success;
+        comp_val = regcomp(regex, template, 0);
+    return comp_val;
 }
 
-void proc_after(letters *flags, char *file_name, char *file, char last,
-                int count_flag_c, int count_flag_l, int print) {
-  if (flags->c) {
-    if (!count_flag_l) {
-      printf("%s%d\n", file_name, count_flag_c);
-    } else if (!count_flag_c) {
-      printf("%s%d\n", file_name, count_flag_c);
-    } else {
-      printf("%s\n", file);
+void print_o_match(int *file_name_print, file_struct *files, size_t offset, regmatch_t match, char *line,
+                   int *flags, int line_number, int files_var) {
+    if (!flags[C] && !flags[L]) {
+        if (strlen(line) == 1 && line[0] == '.') line[0] = '\0';
+        if (*file_name_print) {
+            if (!flags[H] && files_var > 1) printf("%s:", files->file_name);
+            if (flags[N]) printf("%d:", line_number);
+        }
+        for (size_t i = offset + match.rm_so; i < offset + match.rm_eo; i++) printf("%c", line[i]);
+        printf("\n");
+        *file_name_print = 0;
     }
-  } else if (count_flag_l) {
-    printf("%s\n", file);
-  } else if (flags->o) {
-printf("%s%d");
-  }
-  if (last != '\n' && print != 0 && flags->c == 0 && flags->l == 0)
-    printf("\n");
+}
+
+void seek_template(char *line, template template, file_struct *files, int *flags, int *matching_lines,
+                   int files_var, int line_number, int *one_time_print) {
+    regex_t regex;
+    trim_n(template.name);
+    int comp_val = do_regcomp(&regex, flags, template.name);
+    if (!comp_val) {
+        int exec_val = regexec(&regex, line, 0, NULL, 0);
+        if (exec_val == 0) {
+            if (!flags[V]) {
+                print_match(line, flags, files, files_var, line_number, one_time_print, matching_lines);
+            }
+            *one_time_print = 0;
+        }
+    } else {
+        printf("Ошибка ввода, введите корректные данные\n");
+    }
+    regfree(&regex);
+}
+
+void print_match(char *line, int *flags, file_struct *files, int files_var, int line_number,
+                 int *one_time_print, int *maching_lines) {
+    if (!flags[C] && !flags[L] && *one_time_print) {
+        if (strlen(line) == 1 && line[0] == '.') line[0] = '\0';
+        if (!flags[H] && files_var > 1) printf("%s:", files->file_name);
+        if (flags[N]) printf("%d:", line_number);
+        printf("%s\n", line);
+    }
+    if (*one_time_print) (*maching_lines)++;
+}
+
+void print_files_c(file_struct *files, int files_var, int maching_lines, const int *flags) {
+    if (!flags[H] && files_var > 1) printf("%s:", files->file_name);
+    if (!flags[L])
+        printf("%d\n", maching_lines);
+    else
+        printf("%d\n", maching_lines > 0 ? 1 : 0);
+}
+
+void print_files_l(file_struct *files, int maching_lines) {
+    if (maching_lines > 0) printf("%s\n", files->file_name);
 }

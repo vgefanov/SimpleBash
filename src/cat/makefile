@@ -9,7 +9,7 @@ test:	clean s21_cat
 	bash test.sh
 
 clean:
-	rm -f *.out s21_cat s21_cat_result.txt std_cat_result.txt
+	rm -f *.out s21_cat_result.txt std_cat_result.txt s21_cat
 
 rebuild: clean s21_cat
 

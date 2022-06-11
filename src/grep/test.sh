@@ -48,10 +48,10 @@ printf "test 10 -s flag\n" >> s21_grep_result.txt
 grep -s 12 test.txt test1.txt test4.txt >> std_grep_result.txt
 ./s21_grep -s 12 test.txt test1.txt test4.txt >> s21_grep_result.txt
 
-# printf "test 11 -f flag\n" >> std_grep_result.txt
-# printf "test 11 -f flag\n" >> s21_grep_result.txt
-# grep -f zx test.txt test1.txt >> std_grep_result.txt
-# ./s21_grep -f zx test.txt test1.txt >> s21_grep_result.txt
+printf "test 11 -f flag\n" >> std_grep_result.txt
+printf "test 11 -f flag\n" >> s21_grep_result.txt
+grep -f test.txt test1.txt >> std_grep_result.txt
+./s21_grep -f test.txt test1.txt >> s21_grep_result.txt
 
 printf "test 12 -o flag\n" >> std_grep_result.txt
 printf "test 12 -o flag\n" >> s21_grep_result.txt
@@ -68,6 +68,4 @@ printf "test 14 -in flag\n" >> s21_grep_result.txt
 grep -in qaz test.txt test1.txt >> std_grep_result.txt
 ./s21_grep -in qaz test.txt test1.txt >> s21_grep_result.txt
 
-diff std_grep_result.txt s21_grep_result.txt
-
-rm std_grep_result.txt s21_grep_result.txt
+diff -s std_grep_result.txt s21_grep_result.txt

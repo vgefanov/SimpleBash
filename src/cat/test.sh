@@ -48,4 +48,4 @@ printf "test 10 -s -e flag\n" >> s21_cat_result.txt
 cat -s -e test1.txt test2.txt >> std_cat_result.txt
 ./s21_cat -s -e test1.txt test2.txt >> s21_cat_result.txt
 
-diff std_cat_result.txt s21_cat_result.txt
+diff -s std_cat_result.txt s21_cat_result.txt

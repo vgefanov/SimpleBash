@@ -9,7 +9,7 @@ test:	clean s21_grep
 	bash test.sh
 
 clean:
-	rm -f *.out s21_grep
+	rm -f *.out s21_grep_result.txt std_grep_result.txt s21_grep
 
 rebuild: clean s21_grep
 
