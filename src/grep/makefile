@@ -1,11 +1,11 @@
-CC = gcc -Wextra -Werror -Wall
+CC = gcc
 
-all: clean s21_grep test leaks linter cppcheck
+all: rebuild
 
 s21_grep: 
 	$(CC) s21_grep.c -o s21_grep
 
-test:	clean s21_grep
+test:	rebuild
 	bash test.sh
 
 clean:

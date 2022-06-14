@@ -1,8 +1,8 @@
 #include "s21_grep.h"
 
 int main(int argc, char **argv) {
-    int len = argc;
-    template template[len];
+    int kLen = argc;
+    template template[kLen];
     init_templates(template, argc);
     int templates_var = 0;
     int flags[10] = {0};
@@ -108,12 +108,12 @@ char *get_default_template(int argc, char **argv) {
 }
 
 void scan_files(int argc, char **argv, template *template, int templates_var, int *flags) {
-    int files_variable = var_files(argc, argv, template, flags);
-    if (files_variable) {
-        file_struct files[files_variable];
-        init_files(files, files_variable);
+    int kFiles_variable = var_files(argc, argv, template, flags);
+    if (kFiles_variable) {
+        file_struct files[kFiles_variable];
+        init_files(files, kFiles_variable);
         get_files(argc, argv, template, files, flags);
-        files_processing(template, templates_var, files, files_variable, flags);
+        files_processing(template, templates_var, files, kFiles_variable, flags);
     }
 }
 
