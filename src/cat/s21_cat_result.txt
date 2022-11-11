@@ -1,0 +1,91 @@
+test 1 without any flag
+qwerty
+	asdf
+zx
+!@#$%^&*()_+
+	
+
+12345
+
+	
+
+qazxswedctest 2 without any flag
+test 3 -b flag
+     1	qwerty
+     2		asdf
+     3	zx
+     4	!@#$%^&*()_+
+     5		
+
+     6	12345
+
+     7		
+
+     8	qazxswedctest 4 -b flag
+test 5 -e flag
+qwerty$
+	asdf$
+zx$
+!@#$%^&*()_+$
+	$
+$
+12345$
+$
+	$
+$
+qazxswedctest 6 -n flag
+     1	qwerty
+     2		asdf
+     3	zx
+     4	!@#$%^&*()_+
+     5		
+     6	
+     7	12345
+     8	
+     9		
+    10	
+    11	qazxswedctest 7 -s flag
+qwerty
+	asdf
+zx
+!@#$%^&*()_+
+	
+
+12345
+
+	
+
+qazxswedctest 8 -t flag
+qwerty
+^Iasdf
+zx
+!@#$%^&*()_+
+^I
+
+12345
+
+^I
+
+qazxswedctest 9 -v flag
+qwerty
+	asdf
+zx
+!@#$%^&*()_+
+	
+
+12345
+
+	
+
+qazxswedctest 10 -s -e flag
+qwerty$
+	asdf$
+zx$
+!@#$%^&*()_+$
+	$
+$
+12345$
+$
+	$
+$
+qazxswedc

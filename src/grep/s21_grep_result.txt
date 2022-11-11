@@ -1,0 +1,91 @@
+test 1 without any flag
+	asdf
+test 2 without any flag
+test 3 -e flag
+	asdf
+qazxswedc
+test 4 -i flag
+test.txt:	asDf
+test.txt:qazxsweDc
+test1.txt:	asdf
+test1.txt:qazxswedc
+test 5 -v flag
+test.txt:qwerty
+test.txt:	asDf
+test.txt:zx
+test.txt:!@#$%^&*()_+
+test.txt:	
+test.txt:
+test.txt:12345
+test.txt:
+test.txt:	
+test.txt:
+test.txt:qazxsweDc
+test.txt:12345
+test.txt:Hi school
+test1.txt:qwerty12345ytrewq
+test1.txt:	asdf
+test1.txt:zx
+test1.txt:!@#$%^&*()_+
+test1.txt:	
+test1.txt:
+test1.txt:12345
+test1.txt:
+test1.txt:	
+test1.txt:
+test1.txt:qazxswedc
+test 6 -c flag
+test.txt:3
+test1.txt:2
+test 7 -l flag
+test 8 -n flag
+test1.txt:2:	asdf
+test 9 -h flag
+qwerty
+qwerty12345ytrewq
+test 10 -s flag
+test.txt:12345
+test.txt:12345
+test1.txt:qwerty12345ytrewq
+test1.txt:12345
+test 11 -f flag
+qwerty12345ytrewq
+	asdf
+zx
+!@#$%^&*()_+
+	
+
+12345
+
+	
+
+qazxswedc
+test 12 -o flag
+test.txt:qwerty
+test1.txt:qwerty
+test 13 -iv flag
+test.txt:qwerty
+test.txt:zx
+test.txt:!@#$%^&*()_+
+test.txt:	
+test.txt:
+test.txt:12345
+test.txt:
+test.txt:	
+test.txt:
+test.txt:qazxsweDc
+test.txt:12345
+test.txt:Hi school
+test1.txt:qwerty12345ytrewq
+test1.txt:zx
+test1.txt:!@#$%^&*()_+
+test1.txt:	
+test1.txt:
+test1.txt:12345
+test1.txt:
+test1.txt:	
+test1.txt:
+test1.txt:qazxswedc
+test 14 -in flag
+test.txt:11:qazxsweDc
+test1.txt:11:qazxswedc
